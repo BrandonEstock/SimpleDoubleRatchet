@@ -69,15 +69,15 @@ namespace DoubleRachetDemo
             {
                 Parameters = param,
                 PublicKeyParameter = dhPublicKeyParameters,
-                PublicKey = dhPublicKeyParameters.Y.ToString(),
+                PublicKey = dhPublicKeyParameters.Y.ToString(16),
                 PrivateKeyParameter = dhPrivateKeyParameters,
-                PrivateKey = dhPrivateKeyParameters.X.ToString()
+                PrivateKey = dhPrivateKeyParameters.X.ToString(16)
             };
         }
         public string ComputeSharedSecret(string publicKey)
         {
             DHParameters param = Parameters;
-            var importedKey = new DHPublicKeyParameters(new BigInteger(publicKey), param);
+            var importedKey = new DHPublicKeyParameters(new BigInteger(publicKey, 16), param);
             var internalKeyAgree = AgreementUtilities.GetBasicAgreement("DH");
             internalKeyAgree.Init(PrivateKeyParameter);
             return internalKeyAgree.CalculateAgreement(importedKey).ToString(16);

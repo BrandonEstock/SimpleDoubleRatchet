@@ -12,7 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DoubleRachet", "src\DoubleRachetDemo\DoubleRachet.xproj", "{57FA710E-89B1-4493-9C71-23CECC5264E1}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Demo", "src\Demo\Demo.xproj", "{346614DD-4334-4910-B1FA-F6140D18E654}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Alice", "src\Demo\Alice.xproj", "{346614DD-4334-4910-B1FA-F6140D18E654}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Bob", "src\Bob\Bob.xproj", "{65F69C11-71E5-47A4-BA39-9DF738F76645}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,10 @@ Global
 		{346614DD-4334-4910-B1FA-F6140D18E654}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{346614DD-4334-4910-B1FA-F6140D18E654}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{346614DD-4334-4910-B1FA-F6140D18E654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65F69C11-71E5-47A4-BA39-9DF738F76645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65F69C11-71E5-47A4-BA39-9DF738F76645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65F69C11-71E5-47A4-BA39-9DF738F76645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65F69C11-71E5-47A4-BA39-9DF738F76645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -35,5 +41,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{57FA710E-89B1-4493-9C71-23CECC5264E1} = {B9F5F08B-901D-411F-B319-00941C74F4C8}
 		{346614DD-4334-4910-B1FA-F6140D18E654} = {B9F5F08B-901D-411F-B319-00941C74F4C8}
+		{65F69C11-71E5-47A4-BA39-9DF738F76645} = {B9F5F08B-901D-411F-B319-00941C74F4C8}
 	EndGlobalSection
 EndGlobal

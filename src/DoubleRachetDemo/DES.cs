@@ -37,7 +37,14 @@ namespace DoubleRachetDemo
                 throw new CryptoException("Invalid Data");
             }
         }
-        public static string Decrypt(string ciphertext, string key)
+
+        public static string EncryptB64(string text, string key)
+        {
+            byte[] buffer =  GetBytesFromString(Encrypt(text, key));
+            return Convert.ToBase64String(buffer);
+        }
+
+        public static string Decrypt(string ciphertext, string key, string note = "")
         {
             byte[] output = null;
             
@@ -53,6 +60,12 @@ namespace DoubleRachetDemo
             {
                 throw new CryptoException("Invalid Data");
             }
+        }
+
+        public static string DecryptB64(string text, string key)
+        {
+            string cipherText = GetStringFromByteArray(Convert.FromBase64String(text));
+            return Decrypt(cipherText, key);
         }
 
     }

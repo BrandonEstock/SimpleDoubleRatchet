@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Demo": {
+      "commandName": "Project",
+      "commandLineArgs": "8086 8087"
+    }
+  }
+}
