@@ -11,6 +11,7 @@ A simple to use, transport agnostic implementation of [The Double Ratchet Algori
 ## Usage
 ## 1) Opening the channel
 First setup some communication channel you want to secure.
+
 **Sender**
 ```cs
 TcpClient SenderTx = new TcpClient(ReceiverIpAddress, ReceiverRXPort);
@@ -23,6 +24,7 @@ TcpServer ReceiverRx = new TcpServer(ReceiverIpAddress, SenderRXPort);
 ```
 
 Then create an instance of ```DRChannel``` and connect it to the communication channel.
+
 **Sender**
 ```cs
 DRChannel SenderChannel = new DRChannel(); // or new DRChannel(true) to disable encryption for debugging content
