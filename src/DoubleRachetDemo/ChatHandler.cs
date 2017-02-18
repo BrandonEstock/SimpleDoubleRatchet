@@ -69,10 +69,13 @@ namespace DoubleRachetDemo
         }
 
         bool Verbose = false;
+        bool ShowNetworkPackets = true;
+        
 
         public void StartSender()
         {
             Channel.Verbose = Verbose;
+            Channel.ShowTransportPackets = ShowNetworkPackets;
             if (Channel.Open(true)) 
             {
                 CConsole.White("~~~ Channel Open ~~~");
@@ -94,8 +97,7 @@ namespace DoubleRachetDemo
             };
 
             Channel.Send("Message 1");
-            Channel.WaitForResponse();
-            Channel.Send("Message 2");
+            Channel.Send("Message 1");
             Channel.WaitForResponse();
             Channel.Send("Message 3");
 
@@ -106,6 +108,7 @@ namespace DoubleRachetDemo
         {
             bool first = true;
             Channel.Verbose = Verbose;
+            Channel.ShowTransportPackets = ShowNetworkPackets;
             if (Channel.Open(false))  
             {
                 CConsole.White("~~~ Channel Open ~~~");

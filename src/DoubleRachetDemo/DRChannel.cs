@@ -86,6 +86,10 @@ namespace DoubleRachetDemo
         public DRChannel(bool plaintextMode = false)
         {
             PlaintextMode = plaintextMode;
+            if ( PlaintextMode )
+            {
+                CConsole.Red(" --- PLAIN TEXT MODE ---");
+            }
         }               
       
         public bool Open(bool sender)
@@ -492,7 +496,13 @@ namespace DoubleRachetDemo
                 if (Verbose)
                     CConsole.Red("ReceivingChainKey = {0}", H(ReceivingChainKey));
 
-                string messageKey = ReceivingChainKey;
+                string messageKey;
+                string outputA;
+                string outputB;
+                KDF(ReceivingChainKey, ReceivingChainKey, out outputA, out outputB);
+
+                messageKey = outputA;
+                ReceivingChainKey = outputB;
 
                 if (Verbose)
                     CConsole.DarkGreen("MessageKey = {0}", H(messageKey));

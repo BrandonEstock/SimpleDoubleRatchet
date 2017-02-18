@@ -41,7 +41,6 @@ namespace Demo
             {
                 //  !!! Plain text mode flag !!!
                 Channel = new DRChannel(false);
-                //Channel.Verbose = false;
 
                 TcpServer RxServer = new TcpServer(IPAddress, rxPort);
                 TcpClient TxServer = new TcpClient(IPAddress, txPort);
