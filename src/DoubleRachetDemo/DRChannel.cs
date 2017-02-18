@@ -357,7 +357,25 @@ namespace DoubleRachetDemo
                 return true;
             }
 
-            string messageKey = SendingChainKey;
+            string messageKey;
+            string outputA;
+            string outputB;
+            KDF(SendingChainKey, SendingChainKey, out outputA, out outputB);
+
+            messageKey = outputA;
+            SendingChainKey = outputB;
+
+            if (Verbose)
+            {
+                if (RootChainCount % 2 == 1)
+                {
+                    CConsole.Magenta("SendingChainKey = {0}", H(SendingChainKey));
+                }
+                else
+                {
+                    CConsole.Blue("SendingChainKey = {0}", H(SendingChainKey));
+                }
+            }
 
             if (Verbose)
                 CConsole.DarkGreen("MessageKey = {0}", H(messageKey));
@@ -410,7 +428,26 @@ namespace DoubleRachetDemo
                     }
                 }
 
-                string messageKey = ReceivingChainKey;
+                string messageKey;
+                string outputA;
+                string outputB;
+                KDF(ReceivingChainKey, ReceivingChainKey, out outputA, out outputB);
+
+                messageKey = outputA;
+                ReceivingChainKey = outputB;
+
+                if (Verbose)
+                {
+                    if (RootChainCount % 2 == 1)
+                    {
+                        CConsole.Magenta("ReceivingChainKey = {0}", H(ReceivingChainKey));
+                    }
+                    else
+                    {
+                        CConsole.Blue("ReceivingChainKey = {0}", H(ReceivingChainKey));
+                    }
+                }
+                
 
                 if (Verbose)
                     CConsole.DarkGreen("MessageKey = {0}", H(messageKey));
