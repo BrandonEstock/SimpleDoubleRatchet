@@ -31,9 +31,9 @@ namespace DoubleRachetDemo
             }        
         }
 
-        public TcpServer(int rxPort)
+        public TcpServer(string ipAddr, int rxPort)
         {
-            Listener = new TcpListener(IPAddress.Parse("127.0.0.1"), rxPort);
+            Listener = new TcpListener(IPAddress.Parse(ipAddr), rxPort);
             Listener.Start();
 
             new Thread(new ThreadStart(() =>

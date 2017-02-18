@@ -58,5 +58,18 @@ namespace DoubleRachetDemo
         {
             PrintWithColor(ConsoleColor.DarkCyan, message, formatting);
         }
+        internal static void DarkMagenta(string message, params object[] formatting)
+        {
+            PrintWithColor(ConsoleColor.DarkMagenta, message, formatting);
+        }
+        internal static void DarkYellow(string message, params object[] formatting)
+        {
+            PrintWithColor(ConsoleColor.DarkYellow, message, formatting);
+        }
+
+        internal static void DarkBlue(string message, params object[] formatting)
+        {
+            PrintWithColor(ConsoleColor.DarkBlue, message, formatting);
+        }
     }    
 }

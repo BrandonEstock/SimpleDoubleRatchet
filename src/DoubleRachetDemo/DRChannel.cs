@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,14 @@ namespace DoubleRachetDemo
         }
         public struct SimpleMessage
         {
+            public SimpleMessage(ChannelMessage message) : this()
+            {
+                this.AcknowledgedId = message.AcknowledgeKey;
+                this.AnnouncedId = message.AnnouncedKey;
+                this.CipherText = message.CipherText;
+                this.Id = message.Id;
+            }
+
             public string AnnouncedId { get; set; }
             public string AcknowledgedId { get; set; }
             public string CipherText { get; set; }
@@ -33,13 +42,27 @@ namespace DoubleRachetDemo
         internal DHKeyPair RachetKeyPair { get; set; }
         internal DHParameters Parameters { get; set; }
         internal string LastParterAnnouncedKey { get; set; }
-        internal string RootChainKey { get; set; }
-        internal string SendingChainKey { get; set; }
 
-        internal int SendingMessageId = 0;
+        internal int RootChainCount = 0;
+
+        internal string _RootChainKey = null;
+        internal string RootChainKey {
+            get
+            {
+                return _RootChainKey;
+            }
+            set
+            {
+                RootChainCount++;
+                _RootChainKey = value;
+            }
+        }
+        internal string SendingChainKey { get; set; }
 
         internal int ReceivingMessageId = 0;
 
+        internal int SendingMessageId = 0;
+        
         internal string ReceivingChainKey { get; set; }
 
         internal Action<string> MessageListener { get; set; }
@@ -49,7 +72,7 @@ namespace DoubleRachetDemo
         internal bool IsOpen = false;
 
         public bool Verbose = true;
-        public bool ShowTransportPackets = true;
+        public bool ShowTransportPackets = false;
 
         public bool PlaintextMode { get; private set; }
 
@@ -78,10 +101,9 @@ namespace DoubleRachetDemo
 
                 //  Send acknowledge
                 if ( Verbose ) 
-                    CConsole.Magenta("Acknowledging AKP0.Public {0}", LastParterAnnouncedKey);
-                //RachetKeyPair = DHKeyPair.Generate(RachetKeyPair.Parameters);
+                    CConsole.DarkCyan("Acknowledging = {0}", LastParterAnnouncedKey);
                 if (Verbose)
-                    CConsole.Green("Announcing BKP0.Public {0}", RachetKeyPair.PublicKey);
+                    CConsole.DarkMagenta("Announcing = {0}", RachetKeyPair.PublicKey);
 
                 RootChainKey = RachetKeyPair.ComputeSharedSecret(LastParterAnnouncedKey);
                 string outputA;
@@ -90,9 +112,9 @@ namespace DoubleRachetDemo
                 RootChainKey = outputA;
                 SendingChainKey = outputB;
                 if (Verbose)
-                    CConsole.Yellow("[RootChainKey Bob] = {0}", RootChainKey);
-                if (Verbose)
-                    CConsole.Cyan("[SendingChainKey Bob] = {0}", SendingChainKey);
+                    CConsole.DarkYellow("RootChainKey = {0}", H(RootChainKey));
+                if (Verbose) 
+                    CConsole.Magenta("SendingChainKey = {0}", H(SendingChainKey));
 
                 ChannelMessage msg = new ChannelMessage()
                 {
@@ -104,7 +126,6 @@ namespace DoubleRachetDemo
                 {
                     CConsole.Red("!!! Error sending initial announce !!!");
                 }
-                //  Compute RootChainKey
             }
             else
             {
@@ -124,7 +145,7 @@ namespace DoubleRachetDemo
                     PlaintextMode = PlaintextMode
                 };
                 if (Verbose)
-                    CConsole.Green("Announcing AKP0.Public {0}", RachetKeyPair.PublicKey);
+                    CConsole.DarkCyan("Announcing = {0}", RachetKeyPair.PublicKey);
                 if (!SerializeAndSend(msg))
                 {
                     CConsole.Red("!!! Error sending initial announce !!!");
@@ -142,6 +163,11 @@ namespace DoubleRachetDemo
 
         public void HandleMessageReceive(ChannelMessage message)
         {
+            SimpleMessage simpleMessage = new SimpleMessage(message);
+            if (ShowTransportPackets )
+            {
+                CConsole.Gray("{0}", JsonConvert.SerializeObject(simpleMessage, Formatting.Indented));
+            }
             if (message.CipherText == null)
             {
                 //  It's not a message packet
@@ -164,7 +190,7 @@ namespace DoubleRachetDemo
                         message.Param_L);
                     RachetKeyPair = DHKeyPair.Generate(Parameters);
                     if (Verbose)
-                        CConsole.Yellow("RootChainKey = {0}", RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey));
+                        CConsole.Yellow("RootChainKey = {0}", H(RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey)));
                     LastParterAnnouncedKey = message.AnnouncedKey;
 
                     IsOpen = true;
@@ -175,7 +201,7 @@ namespace DoubleRachetDemo
                     //  ALICE
                     //  Initial acknowledge from other side
                     if (Verbose)
-                        CConsole.Magenta("Acknowledging BKP0.Public {0}", message.AnnouncedKey);
+                        CConsole.DarkMagenta("Acknowledging = {0}", message.AnnouncedKey);
                     LastParterAnnouncedKey = message.AnnouncedKey;
                     if (message.AcknowledgeKey != RachetKeyPair.PublicKey)
                     {
@@ -184,27 +210,38 @@ namespace DoubleRachetDemo
                     }
                     else
                     {                        
-                        RootChainKey = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);   //FIRST RootChainKey    
+                        RootChainKey = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);   //FIRST RootChainKey   
+                        if (Verbose)
+                            CConsole.Yellow("RootChainKey = {0}", H(RootChainKey));
                         string outputA1;
                         string outputB1;
                         KDF(RootChainKey, RootChainKey, out outputA1, out outputB1);
                         RootChainKey = outputA1;
                         ReceivingChainKey = outputB1;
                         if (Verbose)
-                            CConsole.Yellow("RootChainKey = {0}", RootChainKey);
+                            CConsole.DarkYellow("RootChainKey = {0}", H(RootChainKey));
                         if (Verbose)
-                            CConsole.Cyan("ReceivingChainKey = {0}", ReceivingChainKey);
+                            CConsole.Magenta("ReceivingChainKey = {0}", H(ReceivingChainKey));
                         string outputA2;
                         string outputB2;
                         RachetKeyPair = DHKeyPair.Generate(Parameters);
+                        if (Verbose)
+                        {
+                            if (RootChainCount % 2 == 1)
+                            {
+                                CConsole.DarkMagenta("Announcing = {0}", H(RachetKeyPair.PublicKey));
+                            }
+                            else
+                            {
+                                CConsole.DarkCyan("Announcing = {0}", H(RachetKeyPair.PublicKey));
+                            }
+                        }
                         string secret = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);
                         KDF(secret, RootChainKey, out outputA2, out outputB2);
                         RootChainKey = outputA2;
                         SendingChainKey = outputB2;
                         if (Verbose)
-                            CConsole.Yellow("RootChainKey = {0}", RootChainKey);
-                        if (Verbose)
-                            CConsole.Magenta("SendingChainKey = {0}", SendingChainKey);
+                            CConsole.Yellow("RootChainKey = {0}", H(RootChainKey));
                     }
                     IsOpen = true;
                     MessageEvent.Set();
@@ -225,8 +262,6 @@ namespace DoubleRachetDemo
 
         public void HandleTransportReceive(string tPacket)
         {
-            if (Verbose || ShowTransportPackets)
-                CConsole.Gray("{0}", tPacket);
             ChannelMessage? message;
             List<ChannelMessage> messages;
             if ( !Deserialize(tPacket, out message, out messages) )
@@ -250,9 +285,9 @@ namespace DoubleRachetDemo
             
         }
 
-        public string B64(string text)
+        public string H(string text)
         {
-            return Convert.ToBase64String(DES.GetBytesFromString(text));
+            return DES.GetStringFromByteArray(Hex.Encode(DES.GetBytesFromString(text)));
         }
 
         public Action<string> OnMessage { get; set; }
@@ -275,6 +310,17 @@ namespace DoubleRachetDemo
             if ( announcedKey != LastParterAnnouncedKey )
             {
                 //  Ratchet Step needed, new key
+                if ( Verbose)
+                {
+                    if (RootChainCount % 2 == 1)
+                    {
+                        CConsole.DarkMagenta("Acknowledging = {0}", H(announcedKey));
+                    }
+                    else
+                    {
+                        CConsole.DarkCyan("Acknowledging = {0}", H(announcedKey));
+                    }
+                }
                 LastParterAnnouncedKey = announcedKey;
                 return true;
             }
@@ -288,8 +334,16 @@ namespace DoubleRachetDemo
         internal bool Encrypt(string text, out ChannelMessage message)
         {
             if (Verbose)
-                CConsole.Green("SendingChainKey = {0}", SendingChainKey);
-
+            {
+                if (RootChainCount % 2 == 1)
+                {
+                    CConsole.Blue("SendingChainKey = {0}", H(SendingChainKey));
+                }
+                else
+                {
+                    CConsole.Magenta("SendingChainKey = {0}", H(SendingChainKey));
+                }
+            }
             if ( PlaintextMode )
             {
                 message = new ChannelMessage()
@@ -303,10 +357,15 @@ namespace DoubleRachetDemo
                 return true;
             }
 
+            string messageKey = SendingChainKey;
+
+            if (Verbose)
+                CConsole.DarkGreen("MessageKey = {0}", H(messageKey));
+
             message = new ChannelMessage()
             {
                 Id = SendingMessageId++,
-                CipherText = DES.EncryptB64(text, SendingChainKey),
+                CipherText = DES.EncryptB64(text, messageKey),
                 AnnouncedKey = RachetKeyPair.PublicKey,
                 AcknowledgeKey = LastParterAnnouncedKey
             };
@@ -329,14 +388,47 @@ namespace DoubleRachetDemo
                 RootChainKey = outputA1;
                 ReceivingChainKey = outputB1;
                 if (Verbose)
-                    CConsole.Yellow("RootChainKey = {0}", RootChainKey);
+                {
+                    if( RootChainCount % 2 == 1)
+                    {
+                        CConsole.Yellow("RootChainKey = {0}", H(RootChainKey));
+                    }
+                    else
+                    {
+                        CConsole.DarkYellow("RootChainKey = {0}", H(RootChainKey));
+                    }
+                }
                 if (Verbose)
-                    CConsole.Green("ReceivingChainKey = {0}", ReceivingChainKey);
-                
-                text = DES.DecryptB64(message.CipherText, ReceivingChainKey);
+                {
+                    if (RootChainCount % 2 == 1)
+                    {
+                        CConsole.Blue("ReceivingChainKey = {0}", H(ReceivingChainKey));
+                    }
+                    else
+                    {
+                        CConsole.Magenta("ReceivingChainKey = {0}", H(ReceivingChainKey));
+                    }
+                }
+
+                string messageKey = ReceivingChainKey;
+
+                if (Verbose)
+                    CConsole.DarkGreen("MessageKey = {0}", H(messageKey));
+
+                text = DES.DecryptB64(message.CipherText, messageKey);
 
                 RachetKeyPair = DHKeyPair.Generate(RachetKeyPair.Parameters);
-
+                if ( Verbose)
+                {
+                    if (RootChainCount % 2 == 1)
+                    {
+                        CConsole.DarkMagenta("Announcing = {0}", H(RachetKeyPair.PublicKey));
+                    }
+                    else
+                    {
+                        CConsole.DarkCyan("Announcing = {0}", H(RachetKeyPair.PublicKey));
+                    }
+                }
                 string secretB = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);
                 string outputA2;
                 string outputB2;
@@ -344,10 +436,16 @@ namespace DoubleRachetDemo
                 RootChainKey = outputA2;
                 SendingChainKey = outputB2;
                 if (Verbose)
-                    CConsole.Yellow("RootChainKey = {0}", RootChainKey);
-                if (Verbose)
-                    CConsole.Green("SendingChainKey = {0}", SendingChainKey);
-
+                {
+                    if (RootChainCount % 2 == 1 )
+                    {
+                        CConsole.Yellow("RootChainKey = {0}", H(RootChainKey));
+                    }
+                    else
+                    {
+                        CConsole.DarkYellow("RootChainKey = {0}", H(RootChainKey));
+                    }
+                }
 
                 ReceivingMessageId++;
                 return true;
@@ -355,9 +453,14 @@ namespace DoubleRachetDemo
             else
             {                
                 if (Verbose)
-                    CConsole.Green("ReceivingChainKey = {0}", ReceivingChainKey);
+                    CConsole.Red("ReceivingChainKey = {0}", H(ReceivingChainKey));
 
-                text = DES.DecryptB64(message.CipherText, ReceivingChainKey);
+                string messageKey = ReceivingChainKey;
+
+                if (Verbose)
+                    CConsole.DarkGreen("MessageKey = {0}", H(messageKey));
+
+                text = DES.DecryptB64(message.CipherText, messageKey);
 
                 ReceivingMessageId++;
                 return true;

@@ -19,6 +19,7 @@ namespace Demo
             {
                 CConsole.Red("!!! Invalid Arguments (RxPort, TxPort) !!!");
             }
+            string IPAddress = "127.0.0.1";
             string PortRX = args[0];
             string PortTX = args[1];
             int rxPort;
@@ -32,17 +33,18 @@ namespace Demo
                 CConsole.Red("!!! Invalid TX Port !!!");
             }
             CConsole.White("~~~Started Alice~~~");
-            CConsole.Gray("    RX Port: {0}", PortRX);
-            CConsole.Gray("    TX Port: {0}", PortTX);
+            CConsole.Gray("    IP Address: {0}", IPAddress);
+            CConsole.Gray("       RX Port: {0}", PortRX);
+            CConsole.Gray("       TX Port: {0}", PortTX);
             
             try
             {
-                //  !!! Plain text mode !!!
+                //  !!! Plain text mode flag !!!
                 Channel = new DRChannel(false);
-                Channel.Verbose = false;
+                //Channel.Verbose = false;
 
-                TcpServer RxServer = new TcpServer(rxPort);
-                TcpClient TxServer = new TcpClient(txPort);
+                TcpServer RxServer = new TcpServer(IPAddress, rxPort);
+                TcpClient TxServer = new TcpClient(IPAddress, txPort);
 
                 Channel.HandleTransportSend = TxServer.Write;
                 RxServer.OnPacket = (string packet) =>
@@ -56,36 +58,8 @@ namespace Demo
                 CConsole.Red("    ExceptionType: {0}\n    ExceptionMessage: {1}", e.GetType().Name, e.Message);
             }
             CConsole.White("~~~ Transport Connected ~~~\n{0}", DateTime.Now.Ticks);
-            if (Channel.Open(true)) //  Alice is the initial sender
-            {
-                CConsole.White("~~~ Channel Open ~~~");
-            }
-            else
-            {
-                CConsole.Red("!!! Channel open timed out !!!");
-                Console.ReadLine();
-                return;
-            }
-
-            Channel.OnMessage = (string msg) =>
-            {
-                CConsole.Blue("{0}", msg);
-            };
             
-            bool running = true;
-
-            while(running)
-            {
-                var oCol = Console.ForegroundColor;
-                Console.ForegroundColor = ConsoleColor.Green;
-                string text = Console.ReadLine();
-                if (text.ToUpper() == ":QUIT")
-                {
-                    running = false;
-                }
-                Console.ForegroundColor = oCol;
-                Channel.Send(text);
-            }          
+            new ChatHandler(Channel).StartSender();
         }
     }
 }

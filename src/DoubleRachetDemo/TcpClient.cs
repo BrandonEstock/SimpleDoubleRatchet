@@ -11,11 +11,11 @@ namespace DoubleRachetDemo
         public int Port { get; private set; }
         public System.Net.Sockets.TcpClient Client { get; private set; } 
         public System.Net.Sockets.NetworkStream Stream { get; private set; }
-        public TcpClient(int port)
+        public TcpClient(string ipAddr, int port)
         {
             Client = new System.Net.Sockets.TcpClient();
             CConsole.DarkGray("[TcpClient] Connecting");
-            Client.ConnectAsync("127.0.0.1", port).Wait();
+            Client.ConnectAsync(ipAddr, port).Wait();
             if ( !Client.Connected )
             {
                 CConsole.Red("!!! Error Connecting TcpClient to port {0} !!!", port);
