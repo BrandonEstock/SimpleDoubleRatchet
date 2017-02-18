@@ -73,6 +73,9 @@ namespace DoubleRachetDemo
 
         public bool Verbose = true;
         public bool ShowTransportPackets = false;
+        public bool UseSecureHeaders = false;
+        public bool UsePrefilledRootKey = false;
+        public string PrefilledRootKey { get; set; }
 
         public bool PlaintextMode { get; private set; }
 
@@ -109,7 +112,20 @@ namespace DoubleRachetDemo
                 if (Verbose)
                     CConsole.DarkMagenta("Announcing = {0}", RachetKeyPair.PublicKey);
 
-                RootChainKey = RachetKeyPair.ComputeSharedSecret(LastParterAnnouncedKey);
+                string secret = RachetKeyPair.ComputeSharedSecret(LastParterAnnouncedKey);
+                if ( UsePrefilledRootKey && PrefilledRootKey != null )
+                {
+                    RootChainKey = PrefilledRootKey;
+                    string outputA1;
+                    string outputB1;
+                    KDF(RootChainKey, RootChainKey, out outputA1, out outputB1);
+                    RootChainKey = outputA1;
+
+                }
+                else
+                {
+                    RootChainKey = secret;
+                }
                 string outputA;
                 string outputB;
                 KDF(RootChainKey, RootChainKey, out outputA, out outputB);
@@ -214,7 +230,19 @@ namespace DoubleRachetDemo
                     }
                     else
                     {                        
-                        RootChainKey = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);   //FIRST RootChainKey   
+                        string secretA = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);   //FIRST RootChainKey   
+                        if ( UsePrefilledRootKey && PrefilledRootKey != null )
+                        {
+                            RootChainKey = PrefilledRootKey;
+                            string outputA;
+                            string outputB;
+                            KDF(RootChainKey, RootChainKey, out outputA, out outputB);
+                            RootChainKey = outputA;
+                        }
+                        else
+                        {
+                            RootChainKey = secretA;
+                        }
                         if (Verbose)
                             CConsole.Yellow("RootChainKey = {0}", H(RootChainKey));
                         string outputA1;

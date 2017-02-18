@@ -58,7 +58,8 @@ namespace DoubleRachetDemo
             }
             catch (System.Exception ex)
             {
-                throw new CryptoException("Invalid Data");
+                CConsole.Red("!!! Failed to Decrypt Message !!!");
+                return null;
             }
         }
 

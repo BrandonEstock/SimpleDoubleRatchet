@@ -69,13 +69,16 @@ namespace DoubleRachetDemo
         }
 
         bool Verbose = false;
-        bool ShowNetworkPackets = true;
-        
+        bool ShowNetworkPackets = false;
+        bool UsePrefilledRootKey = true;
+        string PrefilledRootKey = "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasddffsaddf";
 
         public void StartSender()
         {
             Channel.Verbose = Verbose;
             Channel.ShowTransportPackets = ShowNetworkPackets;
+            Channel.UsePrefilledRootKey = UsePrefilledRootKey;
+            Channel.PrefilledRootKey = PrefilledRootKey;
             if (Channel.Open(true)) 
             {
                 CConsole.White("~~~ Channel Open ~~~");
@@ -109,6 +112,8 @@ namespace DoubleRachetDemo
             bool first = true;
             Channel.Verbose = Verbose;
             Channel.ShowTransportPackets = ShowNetworkPackets;
+            Channel.UsePrefilledRootKey = UsePrefilledRootKey;
+            Channel.PrefilledRootKey = PrefilledRootKey;
             if (Channel.Open(false))  
             {
                 CConsole.White("~~~ Channel Open ~~~");

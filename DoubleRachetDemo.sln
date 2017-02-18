@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{60DEF332-F8AD-48BF-B3E0-7FF695A58306}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DoubleRachet", "src\DoubleRachetDemo\DoubleRachet.xproj", "{57FA710E-89B1-4493-9C71-23CECC5264E1}"
