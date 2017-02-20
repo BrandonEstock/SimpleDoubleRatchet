@@ -14,6 +14,13 @@ namespace DoubleRachetDemo
             Console.WriteLine(message, formatting);
             Console.ForegroundColor = oColor;
         }
+        private static void PrintInlineWithColor(ConsoleColor col, string message, params object[] formatting)
+        {
+            var oColor = Console.ForegroundColor;
+            Console.ForegroundColor = col;
+            Console.Write(message, formatting);
+            Console.ForegroundColor = oColor;
+        }
         public static void Red(string message, params object[] formatting)
         {
             PrintWithColor(ConsoleColor.Red, message, formatting);
@@ -41,6 +48,10 @@ namespace DoubleRachetDemo
         public static void Gray(string message, params object[] formatting)
         {
             PrintWithColor(ConsoleColor.Gray, message, formatting);
+        }
+        public static void GrayInline(string message, params object[] formatting)
+        {
+            PrintInlineWithColor(ConsoleColor.Gray, message, formatting);
         }
         public static void Cyan(string message, params object[] formatting)
         {

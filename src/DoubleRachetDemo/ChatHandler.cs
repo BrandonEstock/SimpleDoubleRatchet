@@ -50,7 +50,7 @@ namespace DoubleRachetDemo
                 }
                 if (text.ToUpper() == ":VERBOSE_OFF")
                 {
-                    Channel.Verbose = true;
+                    Channel.Verbose = false;
                     CConsole.White("OK");
                     continue;
                 }
@@ -70,14 +70,12 @@ namespace DoubleRachetDemo
 
         bool Verbose = false;
         bool ShowNetworkPackets = false;
-        bool UsePrefilledRootKey = true;
         string PrefilledRootKey = "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasddffsaddf";
 
         public void StartSender()
         {
             Channel.Verbose = Verbose;
             Channel.ShowTransportPackets = ShowNetworkPackets;
-            Channel.UsePrefilledRootKey = UsePrefilledRootKey;
             Channel.PrefilledRootKey = PrefilledRootKey;
             if (Channel.Open(true)) 
             {
@@ -92,6 +90,8 @@ namespace DoubleRachetDemo
             Channel.OnMessage = (string msg) =>
             {
                 Console.SetCursorPosition(0, Console.CursorTop);
+                var d = DateTime.Now;
+                CConsole.GrayInline("{0}", d.Hour.ToString() + ":" + d.Minute.ToString() + "." + d.Second.ToString() + "|" + d.Millisecond.ToString());
                 CConsole.Cyan("> {0}", msg);
                 var oCol = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Green;
@@ -112,7 +112,7 @@ namespace DoubleRachetDemo
             bool first = true;
             Channel.Verbose = Verbose;
             Channel.ShowTransportPackets = ShowNetworkPackets;
-            Channel.UsePrefilledRootKey = UsePrefilledRootKey;
+            
             Channel.PrefilledRootKey = PrefilledRootKey;
             if (Channel.Open(false))  
             {
@@ -127,6 +127,8 @@ namespace DoubleRachetDemo
             Channel.OnMessage = (string msg) =>
             {
                 Console.SetCursorPosition(0, Console.CursorTop);
+                var d = DateTime.Now;
+                CConsole.GrayInline("{0}", d.Hour.ToString() + ":" + d.Minute.ToString() + "." + d.Second.ToString() + "|" + d.Millisecond.ToString());
                 CConsole.Cyan("> {0}", msg);
                 var oCol = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Green;

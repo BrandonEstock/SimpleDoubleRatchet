@@ -12,7 +12,7 @@ namespace DoubleRachetDemo
 {
     public class DRChannel
     {
-        public struct ChannelMessage
+        private struct ChannelMessage
         {
             public string AcknowledgeKey { get; set; }
             public string AnnouncedKey { get; set; }
@@ -24,7 +24,7 @@ namespace DoubleRachetDemo
             public int Id { get; set; }
             public bool PlaintextMode { get; set; }
         }
-        public struct SimpleMessage
+        private struct SimpleMessage
         {
             public SimpleMessage(ChannelMessage message) : this()
             {
@@ -39,14 +39,14 @@ namespace DoubleRachetDemo
             public string CipherText { get; set; }
             public int Id { get; set; }
         }
-        internal DHKeyPair RachetKeyPair { get; set; }
-        internal DHParameters Parameters { get; set; }
-        internal string LastParterAnnouncedKey { get; set; }
+        private DHKeyPair RachetKeyPair { get; set; }
+        private DHParameters Parameters { get; set; }
+        private string LastParterAnnouncedKey { get; set; }
 
-        internal int RootChainCount = 0;
+        private int RootChainCount = 0;
 
-        internal string _RootChainKey = null;
-        internal string RootChainKey {
+        private string _RootChainKey = null;
+        private string RootChainKey {
             get
             {
                 return _RootChainKey;
@@ -57,29 +57,28 @@ namespace DoubleRachetDemo
                 _RootChainKey = value;
             }
         }
-        internal string SendingChainKey { get; set; }
+        private string SendingChainKey { get; set; }
 
-        internal int ReceivingMessageId = 0;
+        private int ReceivingMessageId = 0;
 
-        internal int SendingMessageId = 0;
-        
-        internal string ReceivingChainKey { get; set; }
+        private int SendingMessageId = 0;
 
-        internal Action<string> MessageListener { get; set; }
+        private string ReceivingChainKey { get; set; }
 
-        internal AutoResetEvent MessageEvent = new AutoResetEvent(false);
+        private Action<string> MessageListener { get; set; }
 
-        internal bool IsOpen = false;
+        private AutoResetEvent MessageEvent = new AutoResetEvent(false);
 
-        public bool Verbose = true;
-        public bool ShowTransportPackets = false;
-        public bool UseSecureHeaders = false;
-        public bool UsePrefilledRootKey = false;
+        private bool IsOpen = false;
+
+        public bool Verbose { get; set; }
+        public bool ShowTransportPackets { get; set; }
+        public bool UseSecureHeaders  { get; set; }
         public string PrefilledRootKey { get; set; }
 
         public bool PlaintextMode { get; private set; }
 
-        internal void KDF(string input, string kdfKey, out string outputA, out string outputB)
+        private void KDF(string input, string kdfKey, out string outputA, out string outputB)
         {
             string cipherText = DES.Encrypt(input, kdfKey);
             outputA = cipherText;
@@ -113,7 +112,7 @@ namespace DoubleRachetDemo
                     CConsole.DarkMagenta("Announcing = {0}", RachetKeyPair.PublicKey);
 
                 string secret = RachetKeyPair.ComputeSharedSecret(LastParterAnnouncedKey);
-                if ( UsePrefilledRootKey && PrefilledRootKey != null )
+                if ( PrefilledRootKey != null )
                 {
                     RootChainKey = PrefilledRootKey;
                     string outputA1;
@@ -181,7 +180,7 @@ namespace DoubleRachetDemo
 
         public Action<string> HandleTransportSend { get; set; }
 
-        public void HandleMessageReceive(ChannelMessage message)
+        private void HandleMessageReceive(ChannelMessage message)
         {
             SimpleMessage simpleMessage = new SimpleMessage(message);
             if (ShowTransportPackets )
@@ -231,7 +230,7 @@ namespace DoubleRachetDemo
                     else
                     {                        
                         string secretA = RachetKeyPair.ComputeSharedSecret(message.AnnouncedKey);   //FIRST RootChainKey   
-                        if ( UsePrefilledRootKey && PrefilledRootKey != null )
+                        if ( PrefilledRootKey != null )
                         {
                             RootChainKey = PrefilledRootKey;
                             string outputA;
@@ -317,7 +316,7 @@ namespace DoubleRachetDemo
             
         }
 
-        public string H(string text)
+        private string H(string text)
         {
             return DES.GetStringFromByteArray(Hex.Encode(DES.GetBytesFromString(text)));
         }
@@ -337,7 +336,7 @@ namespace DoubleRachetDemo
             }
         }
 
-        public bool DHRachetNeeded(string announcedKey, string acknowledgedKey)
+        private bool DHRachetNeeded(string announcedKey, string acknowledgedKey)
         {
             if ( announcedKey != LastParterAnnouncedKey )
             {
@@ -362,8 +361,8 @@ namespace DoubleRachetDemo
                 return false;
             }
         }
-       
-        internal bool Encrypt(string text, out ChannelMessage message)
+
+        private bool Encrypt(string text, out ChannelMessage message)
         {
             if (Verbose)
             {
@@ -422,7 +421,7 @@ namespace DoubleRachetDemo
             return true;
         }
 
-        internal bool Decrypt(ChannelMessage message, out string text)
+        private bool Decrypt(ChannelMessage message, out string text)
         {
             if ( PlaintextMode && message.PlaintextMode )
             {
@@ -542,14 +541,14 @@ namespace DoubleRachetDemo
             }
         }
 
-        internal bool SerializeAndSend(ChannelMessage message)
+        private bool SerializeAndSend(ChannelMessage message)
         {           
             string packet = JsonConvert.SerializeObject(message, Formatting.Indented);
             HandleTransportSend(packet);
             return true;            
         }
 
-        internal bool Deserialize(string packet, out ChannelMessage? message, out List<ChannelMessage> messages)
+        private bool Deserialize(string packet, out ChannelMessage? message, out List<ChannelMessage> messages)
         {
             try
             {
